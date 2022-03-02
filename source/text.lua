@@ -11,7 +11,6 @@ function Text:init()
 	self:setText("")
 	self:moveTo(0, 0)
 	self:setZIndex(100)
-	self:add()
 end
 
 function Text:setFontSize(size)
@@ -30,13 +29,11 @@ function Text:setInvert(invert)
 	self.invert = invert
 end
 
--- TODO: add optional message box outline
--- TODO: add size constraint with message box
+-- TODO: add size constraint with line wrapping
 
--- TODO: wrap lines to container width
 function Text:setText(newText)
 	self.text = newText
-	
+
 	gfx.setFont(self.font)
 	local width, height = gfx.getTextSize(self.text)
 	self:setSize(width, height)

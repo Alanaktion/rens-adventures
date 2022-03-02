@@ -7,7 +7,6 @@ function Character:init()
 	self:setCenter(.5, 1)
 	-- self:moveTo(0, 0)
 	self:setZIndex(20)
-	self:add()
 end
 
 function Character:setCharacter(newChara)
