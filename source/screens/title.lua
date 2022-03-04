@@ -19,8 +19,7 @@ function Title:init()
 	self.line2:setCenter(.5, 0)
 	self.line2:moveTo(screenWidth / 3, screenHeight / 2)
 
-	self.ren = Character()
-	self.ren:setCharacter("ren")
+	self.ren = Character("ren")
 	self.ren:moveTo(screenWidth * 5 / 4, screenHeight)
 
 	self.renAnim = gfx.animator.new(250, screenWidth * 5 / 4, screenWidth * 3 / 4, playdate.easingFunctions.outQuad)

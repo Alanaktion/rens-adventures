@@ -16,8 +16,9 @@ Things that still need to be built:
 
 - Decision trees
 - Save states
-- Character animation
+- Character position transitions
 - Scene transitions
+- Animated character sprites
 
 ## Usage
 

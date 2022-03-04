@@ -1,4 +1,3 @@
-local screenWidth = playdate.display.getWidth()
 local gfx = playdate.graphics
 
 local font12 = gfx.font.new('fonts/Pedallica/font-pedallica')

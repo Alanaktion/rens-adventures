@@ -60,8 +60,7 @@ function Game:advanceScript()
 		-- Reveal new characters
 		if cur.reveal then
 			for key, value in next, cur.reveal do
-				char = Character()
-				char:setCharacter(value.image)
+				char = Character(value.image)
 				char:moveTo(value.pos.x * screenWidth, value.pos.y * screenHeight)
 				if value.flip then
 					char:setImageFlip(gfx.kImageFlippedX)

@@ -7,6 +7,7 @@ import "screen"
 import "screens/title"
 import "screens/game"
 import "screens/over"
+import "screens/options"
 
 playdate.display.setRefreshRate(30)
 
@@ -19,8 +20,11 @@ gfx.clear()
 Screen.change("title", Title())
 
 local menu = playdate.getSystemMenu()
-local menuItem, error = menu:addMenuItem("title screen", function()
+menu:addMenuItem("title screen", function()
 	Screen.change("title", Title())
+end)
+menu:addMenuItem("options", function()
+	Screen.change("options", Options())
 end)
 
 function playdate.update()

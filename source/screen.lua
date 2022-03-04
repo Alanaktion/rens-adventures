@@ -4,16 +4,32 @@ class("Screen").extends()
 
 Screen.currentInstance = nil
 Screen.currentName = nil
+Screen.lastName = nil
 
 function Screen.change(newName, newInstance)
 	print("[info] changing screen to " .. newName)
 	if Screen.currentInstance ~= nil then
 		Screen.currentInstance:hide()
 		Screen.currentInstance = nil
+		Screen.lastName = Screen.currentName
 	end
 	Screen.currentName = newName
 	Screen.currentInstance = newInstance
 	Screen.currentInstance:show()
+end
+
+function Screen.back()
+	-- TODO: allow modal screens that keep previous screen instance intact
+	-- but still prevent it from rendering over the "modal" screen or taking input
+	local instance = nil
+	if Screen.lastName == "title" then
+		instance = Title()
+	elseif Screen.lastName == "game" then
+		instance = Game()
+	elseif Screen.lastName == "over" then
+		instance = Over()
+	end
+	Screen.change(Screen.lastName, instance)
 end
 
 function Screen:init()
