@@ -4,4 +4,3 @@ description=A simple test game featuring セキレン
 bundleID=com.phpizza.rens-adventures
 version=1.0
 imagePath=assets/launcher/
-launchSoundPath=assets/launcher/sound.wav
