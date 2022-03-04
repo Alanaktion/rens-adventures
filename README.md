@@ -2,7 +2,7 @@
 
 A simple test game featuring セキレン
 
-This is a simple visual novel coded in Lua for the Playdate handheld console. It is developed as an example to build other, more complex and complete games around.
+This is a simple visual novel coded in Lua for the Playdate handheld console. It is developed as an example to build other, more complex and complete games around. It's built on [Noble Engine](https://github.com/NobleRobot/NobleEngine), mostly because it's scene handlers are really nice.
 
 This project includes example font and image assets from Panic, Inc. licensed under Creative Commons 4.0.
 
@@ -10,25 +10,19 @@ Things that work now:
 
 - Title/end screens
 - Character sprites
+- Scene transitions
 - Dialogue progression
 
-Things that still need to be built:
+Things that still need to be implemented:
 
 - Decision trees
 - Save states
 - Character position transitions
-- Scene transitions
 - Animated character sprites
 
 ## Usage
 
 This is a pretty straightforward template to build off of, but there are a few important things to note.
-
-## Screens
-
-At a high level, this template breaks games into major "screens", including the title screen, game screen, and ending ("over") screen. Screens extend a base `Screen` class that handles transitioning between them, showing and hiding their sprites.
-
-Long-term when scene transitions are more robust there will likely be more specific implementation details.
 
 ### Scripts
 

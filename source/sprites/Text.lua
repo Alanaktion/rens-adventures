@@ -1,11 +1,10 @@
-local gfx = playdate.graphics
-
-local font12 = gfx.font.new('fonts/Pedallica/font-pedallica')
+font12 = Graphics.font.new('assets/fonts/Pedallica/font-pedallica')
 font12:setTracking(1)
-local font14 = gfx.font.new('fonts/Pedallica/font-pedallica-fun-14')
-local font16 = gfx.font.new('fonts/Pedallica/font-pedallica-fun-16')
+font14 = Graphics.font.new('assets/fonts/Pedallica/font-pedallica-fun-14')
+font16 = Graphics.font.new('assets/fonts/Pedallica/font-pedallica-fun-16')
+Noble.Text.setFont(font14)
 
-class('Text').extends(gfx.sprite)
+class('Text').extends(NobleSprite)
 
 function Text:init()
 	Text.super.init(self)
@@ -26,7 +25,7 @@ function Text:setFontSize(size)
 		self.font = font14
 	end
 	self.currentFontFamily = {
-		[gfx.font.kVariantNormal] = self.font
+		[Graphics.font.kVariantNormal] = self.font
 	}
 end
 
@@ -50,7 +49,7 @@ end
 function Text:setText(newText)
 	self.text = newText
 	if self.rect == nil then
-		local width, height = gfx.getTextSize(self.text, self.currentFontFamily)
+		local width, height = Graphics.getTextSize(self.text, self.currentFontFamily)
 		self:setSize(width, height)
 	end
 	self:markDirty()
@@ -59,17 +58,17 @@ end
 -- draw callback from the sprite library
 function Text:draw(x, y, width, height)
 	if self.invert then
-		gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
+		Graphics.setImageDrawMode(Graphics.kDrawModeFillWhite)
 	end
 	if self.rect ~= nil then
-		local w, h, trunc = gfx.drawTextInRect(self.text, 0, 0, self.rect.width, self.rect.height, nil, nil, kTextAlignment.left, self.font)
+		local w, h, trunc = Graphics.drawTextInRect(self.text, 0, 0, self.rect.width, self.rect.height, nil, nil, kTextAlignment.left, self.font)
 		if trunc then
 			print("[warn] rendered text was truncated")
 		end
 	else
-		gfx.drawText(self.text, 0, 0, self.currentFontFamily)
+		Graphics.drawText(self.text, 0, 0, self.currentFontFamily)
 	end
 	if self.invert then
-		gfx.setImageDrawMode(gfx.kDrawModeCopy)
+		Graphics.setImageDrawMode(Graphics.kDrawModeCopy)
 	end
 end

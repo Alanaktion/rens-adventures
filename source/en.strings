@@ -1,0 +1,5 @@
+-- These are example strings.
+"menuResumeGame" =		"Continue"
+"menuNewGame" =			"Start"
+"menuOptions" =			"Options"
+"menuCredits" =			"Credits"

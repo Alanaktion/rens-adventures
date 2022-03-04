@@ -1,32 +1,30 @@
-import "CoreLibs/graphics"
-import "CoreLibs/animation"
-import "CoreLibs/sprites"
-import "text"
-import "character"
-import "screen"
-import "screens/title"
-import "screens/game"
-import "screens/over"
-import "screens/options"
+import 'libraries/noble/Noble'
+import 'libraries/animated-sprite/AnimatedSprite'
 
-playdate.display.setRefreshRate(30)
+import 'utilities/Utilities'
 
-local gfx = playdate.graphics
+import 'sprites/Text'
+import 'sprites/Character'
 
-gfx.setColor(gfx.kColorBlack)
-gfx.setBackgroundColor(gfx.kColorWhite)
-gfx.clear()
+import 'scenes/Title'
+import 'scenes/Game'
+import 'scenes/Ending'
+import 'scenes/Options'
 
-Screen.change("title", Title())
+Noble.Settings.setup({
+	MessageStyle = "Dark",
+	FPS = false
+})
+
+Noble.GameData.setup({
+	Score = 0
+})
+
+Noble.showFPS = Noble.Settings.get("FPS")
+
+Noble.new(Title, .5, Noble.TransitionType.CROSS_DISSOLVE, true)
 
 local menu = playdate.getSystemMenu()
 menu:addMenuItem("title screen", function()
-	Screen.change("title", Title())
+	Noble.transition(Title, .5, Noble.TransitionType.CROSS_DISSOLVE)
 end)
-menu:addMenuItem("options", function()
-	Screen.change("options", Options())
-end)
-
-function playdate.update()
-	Screen.currentInstance:update()
-end

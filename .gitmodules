@@ -1,0 +1,6 @@
+[submodule "Noble Engine"]
+	path = source/libraries/noble
+	url = https://github.com/NobleRobot/NobleEngine.git
+[submodule "AnimatedSprite"]
+	path = source/libraries/animated-sprite
+	url = https://github.com/Whitebrim/AnimatedSprite.git
