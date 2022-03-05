@@ -1,4 +1,5 @@
-intro = {{
+return {{
+	bg = "20%",
 	reveal = {
 		shi = {
 			image = "shizune",
@@ -19,6 +20,11 @@ intro = {{
 }, {
 	name = "Misha",
 	text = "Wahaha~!",
+	move = {
+		hana = {
+			pos = {x=.5, y=1}
+		}
+	},
 	hide = {"shi"}
 }, {
 	-- Blank sequence items are allowed!

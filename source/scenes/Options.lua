@@ -13,7 +13,7 @@ local sequence
 function Options:init()
 	Options.super.init(self)
 
-	background = Graphics.image.new("assets/images/background2")
+	background = Graphics.image.new("assets/images/bg/grad2")
 	logo = Graphics.image.new("libraries/noble/assets/images/NobleRobotLogo")
 
 	menu = Noble.Menu.new(false, Noble.Text.ALIGN_LEFT, false, Graphics.kColorBlack, 4,6,0)
