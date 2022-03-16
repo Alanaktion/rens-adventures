@@ -1,5 +1,3 @@
-import "script"
-
 Game = {}
 class("Game").extends(NobleScene)
 
@@ -11,6 +9,8 @@ local screenHeight = playdate.display.getHeight()
 local background
 local txtName
 local txtQuote
+local txtTitle
+-- TODO: maybe draw these as rounded rects instead of images? could match name width, etc.
 local darkImages = {
 	message = Graphics.image.new("assets/images/message"),
 	messageWithName = Graphics.image.new("assets/images/message-with-name")
@@ -25,14 +25,17 @@ local messageBox
 local characters
 local darkStyle
 
+local inputMode
 local scriptIndex
 local chapter
 local chapterIndex
+local choice
+local choiceMenu
 
 function Game:init()
 	Game.super.init(self)
 
-	self:setChapter(script[1].name)
+	self:setChapter(SaveData.current.chapter)
 
 	darkStyle = Noble.Settings.get("MessageStyle") == "Dark"
 
@@ -49,6 +52,11 @@ function Game:init()
 	if darkStyle then
 		txtQuote:setInvert(true)
 	end
+
+	txtTitle = Text()
+	txtTitle:setFontSize(16)
+	txtTitle:setRect(6, screenHeight / 2 - 32, screenWidth - 12, 64)
+	txtTitle:setAlignment(kTextAlignment.center)
 
 	if darkStyle then
 		images = darkImages
@@ -67,13 +75,21 @@ function Game:init()
 	messageBox:moveTo(0, screenHeight)
 	messageBox:setZIndex(90)
 
+	inputMode = "script"
 	characters = {}
+	choice = nil
+	choiceMenu = nil
 
 	local crankTick = 0
 
 	Game.inputHandler = {
+		crankUndocked = function()
+			-- TODO: show message history
+		end,
+		crankDocked = function()
+			-- TODO: hide message history
+		end,
 		cranked = function(change, acceleratedChange)
-			-- TODO: show message history when crank is undocked
 			crankTick = crankTick + change
 			if (crankTick > 30) then
 				crankTick = 0
@@ -83,15 +99,53 @@ function Game:init()
 				-- TODO: navigate back in message history
 			end
 		end,
+		upButtonDown = function()
+			if inputMode == "choice" then
+				choiceMenu:selectPrevious()
+				Sound.beep()
+			end
+		end,
+		downButtonDown = function()
+			if inputMode == "choice" then
+				choiceMenu:selectNext()
+				Sound.beep()
+			end
+		end,
 		AButtonDown = function()
-			self:advanceScript()
-		end
+			if inputMode == "script" then
+				self:advanceScript()
+			elseif inputMode == "choice" then
+				choiceMenu:click()
+				Sound.confirm()
+				inputMode = "script"
+				self:advanceScript()
+			end
+		end,
+		BButtonDown = function()
+			if inputMode == "choice" then
+				for key, value in next, choice do
+					if value.default then
+						choiceMenu:select(key)
+						Sound.beep()
+						return
+					end
+				end
+			end
+		end,
 	}
 end
 
 function Game:start()
 	Game.super.start(self)
 	self:advanceScript()
+end
+
+function Game:update()
+	Game.super.update(self)
+
+	if choice ~= nil then
+		choiceMenu:draw(8, 8)
+	end
 end
 
 function Game:drawBackground()
@@ -110,18 +164,22 @@ function Game:cleanup()
 	cg:remove()
 	txtName:remove()
 	txtQuote:remove()
+	txtTitle:remove()
 	messageBox:remove()
 end
 
 function Game:nextChapter()
 	if scriptIndex == #script then
 		print("end of script")
+		-- Delete autosave after game ends?
+		-- SaveData.delete()
 		Noble.transition(Ending, 2, Noble.TransitionType.DIP_TO_BLACK)
 	else
 		self:cleanup()
 		chapterIndex = 0
 		scriptIndex += 1
 		chapter = script[scriptIndex].sequence
+		SaveData.current.chapter = script[scriptIndex].name
 		self:advanceScript()
 	end
 end
@@ -136,6 +194,7 @@ function Game:setChapter(chapterName)
 	end
 	if scriptIndex ~= nil then
 		chapter = script[scriptIndex].sequence
+		SaveData.current.chapter = script[scriptIndex].name
 	else
 		print("Unknown script chapter " .. chapterName)
 	end
@@ -145,12 +204,21 @@ function Game:seekScript(index)
 	-- TODO: seek to a specific point in a script, tracking all of the bg/cg/character
 	-- changes without rendering anything. Should roughly implement the Game:advanceScript()
 	-- logic to actually render the intended frame once the index is reached.
+	-- TODO: call this when continuing with a SaveData.current.chapterIndex > 0
 end
 
 function Game:advanceScript()
 	chapterIndex += 1
 	local cur = chapter[chapterIndex]
 	if cur then
+
+		-- Conditionally skip current sequence item
+		if cur.check ~= nil then
+			if cur.check() == false then
+				Game:advanceScript()
+				return
+			end
+		end
 
 		-- Set background
 		if cur.bg ~= nil then
@@ -175,7 +243,7 @@ function Game:advanceScript()
 		-- TODO: support altering z-index of individual characters and the message box
 
 		-- Reveal new characters
-		if cur.reveal then
+		if cur.reveal ~= nil then
 			for key, value in next, cur.reveal do
 				local char = Character(value.image)
 				if value.center then
@@ -191,7 +259,7 @@ function Game:advanceScript()
 		end
 
 		-- Move characters
-		if cur.move then
+		if cur.move ~= nil then
 			for key, value in next, cur.move do
 				if characters[key] then
 					local char = characters[key]
@@ -213,7 +281,7 @@ function Game:advanceScript()
 		end
 
 		-- Hide departing characters
-		if cur.hide then
+		if cur.hide ~= nil then
 			for key, value in next, cur.hide do
 				if characters[value] then
 					characters[value]:remove()
@@ -225,7 +293,7 @@ function Game:advanceScript()
 		end
 
 		-- Show message text
-		if cur.text then
+		if cur.text ~= nil then
 			if cur.name then
 				messageBox:setImage(images.messageWithName)
 				txtName:add()
@@ -243,7 +311,49 @@ function Game:advanceScript()
 			messageBox:remove()
 		end
 
+		-- Show title text
+		if cur.title ~= nil then
+			txtTitle:setText(cur.title)
+			txtTitle:setInvert(cur.titleInvert == true)
+			txtTitle:add()
+		else
+			txtTitle:remove()
+		end
+
+		-- Show choice
+		if cur.choice ~= nil then
+			-- TODO: draw outline box
+			choiceCount = #cur.choice
+
+			choice = cur.choice
+			-- TODO: position menu sensibly
+			choiceMenu = Noble.Menu.new(
+				true, -- activate
+				Noble.Text.ALIGN_LEFT,
+				false, -- localized
+				Graphics.kColorBlack,
+				4, -- padding
+				12, -- horizontal padding
+				0, -- margin
+				font14 -- font
+			)
+
+			for key, value in next, choice do
+				choiceMenu:addItem(
+					value.text,
+					function()
+						value.callback()
+					end
+				)
+			end
+
+			inputMode = "choice"
+		end
+
+		SaveData.current.chapterIndex = chapterIndex
+
 	else
+		-- TODO: allow chapter end to have logic to go somewhere specific
 		print("end of chapter " .. scriptIndex)
 		self:nextChapter()
 	end

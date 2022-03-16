@@ -14,14 +14,16 @@ Things that work now:
 - Dialogue progression
 - Background changing
 - Showing CGs
+- Chapters
+- Conditional messages
 
 Things that still need to be implemented:
 
-- Chapters
 - Decision trees
 - Save states
 - Character movement transitions
 - Animated character sprites
+- Message log
 
 ## Usage
 
@@ -29,7 +31,7 @@ This is a pretty straightforward template to build off of, but there are a few i
 
 ### Scripts
 
-Story chapters run in sequence from a chapter "script" file, like `scripts/intro.lua`. Scripts are made up of a numerically-indexed table that contains tables with messages, character reveals, etc. Each sub-table can include these items:
+Story chapters run in sequence from a chapter "script" file, like `scripts/0-intro.lua`. Each chapter file returns a numerically-indexed table, which contains tables with messages, character reveals, etc. Each sub-table can include these items:
 
 - `text`: A message to show in a text box
 - `name`: A character name to show with the message
@@ -46,3 +48,12 @@ Story chapters run in sequence from a chapter "script" file, like `scripts/intro
 - `hide`: A table of character keys to hide, for example `{"ren"}` will hide a `ren={...}` character that was previously revealed.
 - `bg`: Shows a background image from `assets/images/bg/` with the specified name, or removes the current background when `false`.
 - `cg`: Shows a CG image from `assets/images/cg/` with the specified name, or removes the current CG when `false`.
+- `title`: Large title text to show centered on the screen, typically to introduce a new chapter. Typically used by itself, but will be drawn above character/cg images and below message boxes and choices if present.
+- `titleInvert`: Draw title text in white instead of black
+- `check`: An optional function to determine if the message should be rendered. Return false to skip processing anything else in the message. Typically checks something in Noble.GameData set by previous choices.
+- `choice`: A table of options shown to the player, interrupting the script until the player picks an option. Other things in the sequence item like a message, cg, etc will be applied before the choice is displayed. Each choice table item should have the following items:
+	- `text`: The text to display to the player
+	- `callback`: The function called when the player selects that option
+	- `default`: An optional key that, if `true`, will be cause that option to be selected if the player presses the B button
+
+New chapters should be added to the table in `script.lua` to enable them in the game. The game will progress through the chapters sequentially. Chapters have names for better compatibility with save states during development, primarily to avoid a scenario where a save state includes a numeric index but that chapter was moved to a different index.

@@ -1,5 +1,6 @@
 -- These are example strings.
-"menuResumeGame" =		"サイカイ "
+"menuResumeGame" =		"サイカイ"
+"menuLoadGame" =		"ゲームをロード"
 "menuNewGame" =			"アタラシイゲーム"
 "menuOptions" =			"セッテイ"
 "menuCredits" =			"クレジット"

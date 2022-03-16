@@ -8,6 +8,7 @@ local screenHeight = playdate.display.getHeight()
 
 local menu
 local menuSequence
+local menuItemCount
 
 local line1
 local line2
@@ -37,13 +38,24 @@ function Title:init()
 	menu:addItem(
 		"menuNewGame",
 		function()
+			SaveData.init()
+			SaveData.current.chapter = script[1].name
 			Noble.transition(Game, 1, Noble.TransitionType.DIP_TO_WHITE)
 		end
 	)
+	if SaveData.exists("auto") then
+		menu:addItem(
+			"menuResumeGame",
+			function()
+				SaveData.load()
+				Noble.transition(Game, 1, Noble.TransitionType.DIP_TO_WHITE)
+			end
+		)
+	end
 	menu:addItem(
-		"menuResumeGame",
+		"menuLoadGame",
 		function()
-			Noble.transition(Game, 1, Noble.TransitionType.DIP_TO_WHITE)
+			Noble.transition(LoadGame, 1, Noble.TransitionType.DIP_TO_WHITE)
 		end
 	)
 	menu:addItem(
@@ -52,15 +64,18 @@ function Title:init()
 			Noble.transition(Options, 1, Noble.TransitionType.DIP_TO_WHITE)
 		end
 	)
+	menuItemCount = #menu.itemNames
 
 	local crankTick = 0
 
 	Title.inputHandler = {
 		upButtonDown = function()
 			menu:selectPrevious()
+			Sound.beep()
 		end,
 		downButtonDown = function()
 			menu:selectNext()
+			Sound.beep()
 		end,
 		cranked = function(change, acceleratedChange)
 			crankTick = crankTick + change
@@ -74,6 +89,7 @@ function Title:init()
 		end,
 		AButtonDown = function()
 			menu:click()
+			Sound.confirm()
 		end
 	}
 end
@@ -81,6 +97,7 @@ end
 function Title:enter()
 	Title.super.enter(self)
 
+	-- TODO: use menuItemCount to determine position
 	menuSequence = Sequence.new():from(240):to(180, .5, Ease.outQuad)
 	menuSequence:start()
 
@@ -102,6 +119,7 @@ end
 function Title:update()
 	Title.super.update(self)
 
+	-- TODO: use menuItemCount to determine position
 	menu:draw(8, menuSequence:get()-15 or 100-15)
 
 	if not renSequence:isDone() then
@@ -112,6 +130,7 @@ end
 function Title:exit()
 	Title.super.exit(self)
 
+	-- TODO: use menuItemCount to determine position
 	menuSequence = Sequence.new():from(180):to(240, 0.25, Ease.inSine)
 	menuSequence:start()
 

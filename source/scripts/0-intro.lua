@@ -18,6 +18,11 @@ return {{
 	name = "Hanako",
 	text = "Uhm..."
 }, {
+	check = function()
+		return false
+	end,
+	text = "This message SHOULD NEVER SHOW!"
+}, {
 	name = "Misha",
 	text = "Wahaha~!",
 	move = {

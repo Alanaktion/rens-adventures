@@ -9,6 +9,7 @@ class('Text').extends(NobleSprite)
 function Text:init()
 	Text.super.init(self)
 	self.invert = false
+	self.textAlignment = kTextAlignment.left
 	self:setFontSize(14)
 	self:setCenter(0,0)
 	self:setText("")
@@ -46,6 +47,10 @@ function Text:setRect(x, y, width, height)
 	self:setSize(width, height)
 end
 
+function Text:setAlignment(alignment)
+	self.textAlignment = alignment
+end
+
 function Text:setText(newText)
 	self.text = newText
 	if self.rect == nil then
@@ -61,7 +66,7 @@ function Text:draw(x, y, width, height)
 		Graphics.setImageDrawMode(Graphics.kDrawModeFillWhite)
 	end
 	if self.rect ~= nil then
-		local w, h, trunc = Graphics.drawTextInRect(self.text, 0, 0, self.rect.width, self.rect.height, nil, nil, kTextAlignment.left, self.font)
+		local w, h, trunc = Graphics.drawTextInRect(self.text, 0, 0, self.rect.width, self.rect.height, nil, nil, self.textAlignment, self.font)
 		if trunc then
 			print("[warn] rendered text was truncated")
 		end

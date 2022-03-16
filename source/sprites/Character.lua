@@ -1,5 +1,3 @@
-local gfx = playdate.graphics
-
 class('Character').extends(NobleSprite)
 
 function Character:init(name)
