@@ -33,28 +33,48 @@ function Options:init()
 		nil,
 		"Message style: " .. Noble.Settings.get("MessageStyle")
 	)
-	local valString
-	if Noble.Settings.get("FPS") then
-		valString = "Yes"
+
+	local skipValStr
+	if Noble.Settings.get("AllowSkip") then
+		skipValStr = "Yes"
 	else
-		valString = "No"
+		skipValStr = "No"
+	end
+	menu:addItem(
+		"AllowSkip",
+		function()
+			local newValue = not Noble.Settings.get("AllowSkip")
+			if newValue then
+				skipValStr = "Yes"
+			else
+				skipValStr = "No"
+			end
+			Noble.Settings.set("AllowSkip", newValue)
+			menu:setItemDisplayName("AllowSkip", "Allow skipping: " .. skipValStr)
+		end, nil,
+		"Allow skipping: " .. skipValStr
+	)
+
+	local fpsValStr
+	if Noble.Settings.get("FPS") then
+		fpsValStr = "Yes"
+	else
+		fpsValStr = "No"
 	end
 	menu:addItem(
 		"FPS",
 		function()
-			local oldValue = Noble.Settings.get("FPS")
-			local newValue = not oldValue
+			local newValue = not Noble.Settings.get("FPS")
 			Noble.showFPS = newValue
-			local valString
 			if newValue then
-				valString = "Yes"
+				fpsValStr = "Yes"
 			else
-				valString = "No"
+				fpsValStr = "No"
 			end
 			Noble.Settings.set("FPS", newValue)
-			menu:setItemDisplayName("FPS", "Show FPS: " .. valString)
+			menu:setItemDisplayName("FPS", "Show FPS: " .. fpsValStr)
 		end, nil,
-		"Show FPS: " .. valString
+		"Show FPS: " .. fpsValStr
 	)
 	menu:addItem(
 		"Back",
@@ -68,9 +88,11 @@ function Options:init()
 	Options.inputHandler = {
 		upButtonDown = function()
 			menu:selectPrevious()
+			Sound.tick()
 		end,
 		downButtonDown = function()
 			menu:selectNext()
+			Sound.tick()
 		end,
 		cranked = function(change, acceleratedChange)
 			crankTick = crankTick + change
@@ -84,9 +106,11 @@ function Options:init()
 		end,
 		AButtonDown = function()
 			menu:click()
+			Sound.beep()
 		end,
 		BButtonDown = function()
 			Noble.transition(Title, 1, Noble.TransitionType.DIP_TO_WHITE)
+			Sound.back()
 		end
 	}
 end

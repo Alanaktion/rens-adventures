@@ -6,6 +6,9 @@ Game.backgroundColor = Graphics.kColorWhite
 local screenWidth = playdate.display.getWidth()
 local screenHeight = playdate.display.getHeight()
 
+local allowSkip
+local darkStyle
+
 local background
 local txtName
 local txtQuote
@@ -20,10 +23,9 @@ local lightImages = {
 	messageWithName = Graphics.image.new("assets/images/message-light-with-name")
 }
 local images
-local cg
+local eventCg
 local messageBox
 local characters
-local darkStyle
 
 local inputMode
 local scriptIndex
@@ -35,8 +37,7 @@ local choiceMenu
 function Game:init()
 	Game.super.init(self)
 
-	self:setChapter(SaveData.current.chapter)
-
+	allowSkip = Noble.Settings.get("AllowSkip")
 	darkStyle = Noble.Settings.get("MessageStyle") == "Dark"
 
 	txtName = Text()
@@ -64,10 +65,10 @@ function Game:init()
 		images = lightImages
 	end
 
-	cg = NobleSprite()
-	cg:setCenter(0, 0)
-	cg:moveTo(0, 0)
-	cg:setZIndex(80)
+	eventCg = NobleSprite()
+	eventCg:setCenter(0, 0)
+	eventCg:moveTo(0, 0)
+	eventCg:setZIndex(80)
 
 	messageBox = NobleSprite()
 	messageBox:setImage(images.message)
@@ -79,6 +80,11 @@ function Game:init()
 	characters = {}
 	choice = nil
 	choiceMenu = nil
+
+	self:setChapter(SaveData.current.chapter)
+	if SaveData.current.chapterIndex > 0 then
+		self:seekScript(SaveData.current.chapterIndex)
+	end
 
 	local crankTick = 0
 
@@ -132,11 +138,16 @@ function Game:init()
 				end
 			end
 		end,
+		BButtonHold = function()
+			if inputMode == "script" and allowSkip then
+				self:advanceScript()
+			end
+		end
 	}
 end
 
-function Game:start()
-	Game.super.start(self)
+function Game:enter()
+	Game.super.enter(self)
 	self:advanceScript()
 end
 
@@ -161,7 +172,7 @@ function Game:cleanup()
 		value:remove()
 	end
 	characters = {}
-	cg:remove()
+	eventCg:remove()
 	txtName:remove()
 	txtQuote:remove()
 	txtTitle:remove()
@@ -200,11 +211,125 @@ function Game:setChapter(chapterName)
 	end
 end
 
-function Game:seekScript(index)
-	-- TODO: seek to a specific point in a script, tracking all of the bg/cg/character
-	-- changes without rendering anything. Should roughly implement the Game:advanceScript()
-	-- logic to actually render the intended frame once the index is reached.
-	-- TODO: call this when continuing with a SaveData.current.chapterIndex > 0
+function Game:seekScript(__index)
+	local index = __index - 1
+
+	-- Don't seek if not going anywhere :P
+	if index <= 0 then
+		return
+	end
+
+	-- Limit to end of chapter as a safeguard
+	if index >= #chapter then
+		index = #chapter - 1
+	end
+
+	local bg
+	local cg
+	local chara = {}
+	local text
+	local name
+	local title
+	local titleInvert
+
+	-- Seek script to specified index, tracking changes
+	while chapterIndex < index do
+		repeat
+			chapterIndex += 1
+			local cur = chapter[chapterIndex]
+			if cur == nil then
+				break
+			end
+
+			if cur.check ~= nil then
+				if cur.check() == false then
+					break
+				end
+			end
+
+			if cur.bg ~= nil then
+				if cur.bg then
+					bg = cur.bg
+				else
+					bg = nil
+				end
+			end
+
+			if cur.cg ~= nil then
+				if cur.cg then
+					cg = cur.cg
+				else
+					cg = nil
+				end
+			end
+
+			if cur.reveal ~= nil then
+				for key, value in next, cur.reveal do
+					chara[key] = value
+				end
+			end
+
+			if cur.move ~= nil then
+				for key, value in next, cur.move do
+					if chara[key] ~= nil then
+						local char = characters[key]
+						if value.pos ~= nil then
+							char.pos = value.pos
+						end
+						if value.flip ~= nil then
+							char.flip = value.flip
+						end
+					else
+						print("Cannot move character " .. key .. " that does not exist.")
+					end
+				end
+			end
+
+			if cur.hide ~= nil then
+				for key, value in next, cur.hide do
+					if chara[value] ~= nil then
+						chara[value] = nil
+					else
+						print("Cannot hide character " .. value .. " that does not exist.")
+					end
+				end
+			end
+
+			text = cur.text
+			name = cur.name
+			title = cur.title
+			titleInvert = cur.titleInvert
+
+		until true
+	end
+
+	-- Render resulting frame
+	if bg ~= nil then
+		Game:setBg(bg)
+	end
+	if cg ~= nil then
+		Game:setCg(cg)
+	end
+	if #chara then
+		for key, value in next, chara do
+			local char = Character(value.image)
+			if value.center then
+				char:setCenter(value.center.x, value.center.y)
+			end
+			char:moveTo(value.pos.x * screenWidth, value.pos.y * screenHeight)
+			if value.flip then
+				char:setImageFlip(Graphics.kImageFlippedX)
+			end
+			characters[key] = char
+			char:add()
+		end
+	end
+	Game:setMessage(text, name)
+	if title ~= nil then
+		txtTitle:setText(title)
+		txtTitle:setInvert(titleInvert == true)
+		txtTitle:add()
+	end
 end
 
 function Game:advanceScript()
@@ -222,22 +347,12 @@ function Game:advanceScript()
 
 		-- Set background
 		if cur.bg ~= nil then
-			if cur.bg then
-				background = Graphics.image.new("assets/images/bg/" .. cur.bg)
-			else
-				background = nil
-			end
+			Game:setBg(cur.bg)
 		end
 
 		-- Show CG
 		if cur.cg ~= nil then
-			if cur.cg then
-				local img = Graphics.image.new("assets/images/cg/" .. cur.cg)
-				cg:setImage(img)
-				cg:add()
-			else
-				cg:remove()
-			end
+			Game:setCg(cur.cg)
 		end
 
 		-- TODO: support altering z-index of individual characters and the message box
@@ -294,21 +409,9 @@ function Game:advanceScript()
 
 		-- Show message text
 		if cur.text ~= nil then
-			if cur.name then
-				messageBox:setImage(images.messageWithName)
-				txtName:add()
-				txtName:setText(cur.name)
-			else
-				messageBox:setImage(images.message)
-				txtName:remove()
-			end
-			txtQuote:setText(cur.text)
-			txtQuote:add()
-			messageBox:add()
+			Game:setMessage(cur.text, cur.name)
 		else
-			txtQuote:remove()
-			txtName:remove()
-			messageBox:remove()
+			Game:setMessage()
 		end
 
 		-- Show title text
@@ -357,4 +460,42 @@ function Game:advanceScript()
 		print("end of chapter " .. scriptIndex)
 		self:nextChapter()
 	end
+end
+
+function Game:setBg(bg)
+	if bg then
+		background = Graphics.image.new("assets/images/bg/" .. bg)
+	else
+		background = nil
+	end
+end
+
+function Game:setCg(cg)
+	if cg then
+		local img = Graphics.image.new("assets/images/cg/" .. cg)
+		eventCg:setImage(img)
+		eventCg:add()
+	else
+		eventCg:remove()
+	end
+end
+
+function Game:setMessage(text, name)
+	if text == nil then
+		txtName:remove()
+		txtQuote:remove()
+		messageBox:remove()
+		return
+	end
+	if name then
+		messageBox:setImage(images.messageWithName)
+		txtName:add()
+		txtName:setText(name)
+	else
+		messageBox:setImage(images.message)
+		txtName:remove()
+	end
+	txtQuote:setText(text)
+	txtQuote:add()
+	messageBox:add()
 end

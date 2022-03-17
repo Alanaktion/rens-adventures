@@ -16,11 +16,13 @@ Things that work now:
 - Showing CGs
 - Chapters
 - Conditional messages
+- Save states
+- Skip mode
 
 Things that still need to be implemented:
 
-- Decision trees
-- Save states
+- Choice menu + example implementations
+- BGM (MIDI + WAV)
 - Character movement transitions
 - Animated character sprites
 - Message log

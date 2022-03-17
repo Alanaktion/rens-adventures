@@ -1,9 +1,9 @@
 import 'sprites/SaveSlot'
 
-LoadGame = {}
-class("LoadGame").extends(NobleScene)
+SaveGame = {}
+class("SaveGame").extends(NobleScene)
 
-LoadGame.backgroundColor = Graphics.kColorWhite
+SaveGame.backgroundColor = Graphics.kColorWhite
 
 local screenWidth = playdate.display.getWidth()
 local screenHeight = playdate.display.getHeight()
@@ -14,8 +14,8 @@ local slotData
 local selected
 local slotSprites
 
-function LoadGame:init()
-	LoadGame.super.init(self)
+function SaveGame:init()
+	SaveGame.super.init(self)
 
 	text1 = Text()
 	text1:setText("Ⓑ Back")
@@ -23,7 +23,7 @@ function LoadGame:init()
 	text1:moveTo(4, screenHeight - 2)
 
 	text2 = Text()
-	text2:setText("Ⓐ Load")
+	text2:setText("Ⓐ Save")
 	text2:setCenter(1, 1)
 	text2:moveTo(screenWidth - 6, screenHeight - 2)
 
@@ -33,7 +33,7 @@ function LoadGame:init()
 			local data = SaveData.getAll(i)
 			slotData[i] = {
 				chapter = data.chapter,
-				time = Utilities.formatDateTime(data.timestamp)
+				time = Utilities.formatDateTime(data.time)
 			}
 		end
 	end
@@ -53,27 +53,28 @@ function LoadGame:init()
 	end
 	slotSprites[1]:setSelected(true)
 
-	LoadGame.inputHandler = {
+	SaveGame.inputHandler = {
 		upButtonDown = function()
-			LoadGame:selectPrevious()
+			SaveGame:selectPrevious()
 			Sound.tick()
 		end,
 		downButtonDown = function()
-			LoadGame:selectNext()
+			SaveGame:selectNext()
 			Sound.tick()
 		end,
 		AButtonDown = function()
-			LoadGame:click()
+			SaveGame:click()
+			Sound.confirm()
 		end,
 		BButtonDown = function()
-			Noble.transition(Title, 1, Noble.TransitionType.DIP_TO_WHITE)
+			Noble.transition(Game, 1, Noble.TransitionType.DIP_TO_WHITE)
 			Sound.back()
 		end
 	}
 end
 
-function LoadGame:enter()
-	LoadGame.super.enter(self)
+function SaveGame:enter()
+	SaveGame.super.enter(self)
 	text1:add()
 	text2:add()
 	for _, value in next, slotSprites do
@@ -81,7 +82,7 @@ function LoadGame:enter()
 	end
 end
 
-function LoadGame:selectPrevious()
+function SaveGame:selectPrevious()
 	slotSprites[selected]:setSelected(false)
 	selected -= 1
 	if selected == 0 then
@@ -90,7 +91,7 @@ function LoadGame:selectPrevious()
 	slotSprites[selected]:setSelected(true)
 end
 
-function LoadGame:selectNext()
+function SaveGame:selectNext()
 	slotSprites[selected]:setSelected(false)
 	selected += 1
 	if selected > #slotSprites then
@@ -99,12 +100,11 @@ function LoadGame:selectNext()
 	slotSprites[selected]:setSelected(true)
 end
 
-function LoadGame:click()
+function SaveGame:click()
 	if slotData[selected] ~= nil then
-		SaveData.load(selected)
-		Noble.transition(Game, 1, Noble.TransitionType.DIP_TO_WHITE)
-		Sound.confirm()
-	else
-		Sound.buzz()
+		-- TODO: confirm overwriting save
+		print('Overwriting save slot!')
 	end
+	SaveData.save(selected)
+	Noble.transition(Game, 1, Noble.TransitionType.DIP_TO_WHITE)
 end

@@ -18,6 +18,10 @@ function Sound.beep()
 	Sound.triangle:playMIDINote(66, .3, 0.1)
 end
 
+function Sound.tick()
+	Sound.triangle:playMIDINote(60, .4, 0.03)
+end
+
 function Sound.confirm()
 	Sound.triangle:playMIDINote(65, .4, 0.1)
 	Sound.triangle:playMIDINote(71, .4, 0.1, playdate.sound.getCurrentTime() + .1)

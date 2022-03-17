@@ -9,6 +9,7 @@ SaveData.schema = {
 }
 
 -- The current save state data
+-- This is the current state of the game to use when re-entering the Game scene from elsewhere, and what to write when saving the game.
 SaveData.current = {}
 
 -- Set the current save data to the default values

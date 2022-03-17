@@ -8,7 +8,7 @@ local screenHeight = playdate.display.getHeight()
 
 local menu
 local menuSequence
-local menuItemCount
+local menuY
 
 local line1
 local line2
@@ -64,18 +64,18 @@ function Title:init()
 			Noble.transition(Options, 1, Noble.TransitionType.DIP_TO_WHITE)
 		end
 	)
-	menuItemCount = #menu.itemNames
+	menuY = screenHeight - #menu.itemNames * 20
 
 	local crankTick = 0
 
 	Title.inputHandler = {
 		upButtonDown = function()
 			menu:selectPrevious()
-			Sound.beep()
+			Sound.tick()
 		end,
 		downButtonDown = function()
 			menu:selectNext()
-			Sound.beep()
+			Sound.tick()
 		end,
 		cranked = function(change, acceleratedChange)
 			crankTick = crankTick + change
@@ -98,7 +98,7 @@ function Title:enter()
 	Title.super.enter(self)
 
 	-- TODO: use menuItemCount to determine position
-	menuSequence = Sequence.new():from(240):to(180, .5, Ease.outQuad)
+	menuSequence = Sequence.new():from(240):to(menuY, .5, Ease.outQuad)
 	menuSequence:start()
 
 	renSequence = Sequence.new()
@@ -131,7 +131,7 @@ function Title:exit()
 	Title.super.exit(self)
 
 	-- TODO: use menuItemCount to determine position
-	menuSequence = Sequence.new():from(180):to(240, 0.25, Ease.inSine)
+	menuSequence = Sequence.new():from(menuY):to(240, 0.25, Ease.inSine)
 	menuSequence:start()
 
 	renSequence = Sequence.new()

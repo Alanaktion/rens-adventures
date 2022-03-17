@@ -12,13 +12,15 @@ import 'script'
 
 import 'scenes/Title'
 import 'scenes/LoadGame'
+import 'scenes/SaveGame'
 import 'scenes/Game'
 import 'scenes/Ending'
 import 'scenes/Options'
 
 Noble.Settings.setup({
 	MessageStyle = "Dark",
-	FPS = false
+	FPS = false,
+	AllowSkip = false,
 })
 
 Noble.showFPS = Noble.Settings.get("FPS")
@@ -40,11 +42,14 @@ end
 
 local menu = playdate.getSystemMenu()
 menu:addMenuItem("title screen", function()
+	-- TODO: maybe auto-save when returning to title? idk
+	SaveData.init() -- Reset game state since we're exiting the game
 	Noble.transition(Title, .5, Noble.TransitionType.CROSS_DISSOLVE)
 end)
 menu:addMenuItem("save", function()
-	SaveData.save(1)
-	-- Noble.transition(SaveGame, .5, Noble.TransitionType.DIP_TO_WHITE)
+	-- TODO: only allow saving when in a game
+	-- Should probably add/remove this menu item when entering and exiting the game screen
+	Noble.transition(SaveGame, .5, Noble.TransitionType.DIP_TO_WHITE)
 end)
 menu:addMenuItem("load", function()
 	Noble.transition(LoadGame, .5, Noble.TransitionType.DIP_TO_WHITE)
