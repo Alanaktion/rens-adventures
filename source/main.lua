@@ -14,6 +14,7 @@ import 'scenes/Title'
 import 'scenes/LoadGame'
 import 'scenes/SaveGame'
 import 'scenes/Game'
+import 'scenes/MessageLog'
 import 'scenes/Ending'
 import 'scenes/Options'
 

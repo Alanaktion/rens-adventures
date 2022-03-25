@@ -1,8 +1,17 @@
 font12 = Graphics.font.new('assets/fonts/Pedallica/font-pedallica')
 font12:setTracking(1)
-font14 = Graphics.font.new('assets/fonts/Pedallica/font-pedallica-fun-14')
+font14 = Graphics.font.new('assets/fonts/Pedallica/font-pedallica-ren-14')
+font14bold = Graphics.font.new('assets/fonts/Pedallica/font-pedallica-ren-14-bold')
 font16 = Graphics.font.new('assets/fonts/Pedallica/font-pedallica-fun-16')
+
+fontFamily = {
+	[Graphics.font.kVariantNormal] = font14,
+	[Graphics.font.kVariantBold] = font14bold,
+	-- [Graphics.font.kVariantItalic] = font14italic,
+	-- TODO: Make italic font variant, especially useful for message logs
+}
 Noble.Text.setFont(font14)
+Graphics.setFontFamily(fontFamily)
 
 class('Text').extends(NobleSprite)
 
@@ -25,9 +34,13 @@ function Text:setFontSize(size)
 	else
 		self.font = font14
 	end
-	self.currentFontFamily = {
-		[Graphics.font.kVariantNormal] = self.font
-	}
+	if size == 14 then
+		self.currentFontFamily = fontFamily
+	else
+		self.currentFontFamily = {
+			[Graphics.font.kVariantNormal] = self.font
+		}
+	end
 end
 
 function Text:setInvert(invert)

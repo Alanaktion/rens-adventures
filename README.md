@@ -18,6 +18,7 @@ Things that work now:
 - Conditional messages
 - Save states
 - Skip mode
+- Message log
 
 Things that still need to be implemented:
 
@@ -25,7 +26,6 @@ Things that still need to be implemented:
 - BGM (MIDI + WAV)
 - Character movement transitions
 - Animated character sprites
-- Message log
 
 ## Usage
 

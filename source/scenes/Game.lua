@@ -3,8 +3,8 @@ class("Game").extends(NobleScene)
 
 Game.backgroundColor = Graphics.kColorWhite
 
-local screenWidth = playdate.display.getWidth()
-local screenHeight = playdate.display.getHeight()
+local screenWidth <const> = playdate.display.getWidth()
+local screenHeight <const> = playdate.display.getHeight()
 
 local allowSkip
 local darkStyle
@@ -90,23 +90,14 @@ function Game:init()
 
 	Game.inputHandler = {
 		crankUndocked = function()
-			-- TODO: show message history
-		end,
-		crankDocked = function()
-			-- TODO: hide message history
-		end,
-		cranked = function(change, acceleratedChange)
-			crankTick = crankTick + change
-			if (crankTick > 30) then
-				crankTick = 0
-				-- TODO: navigate forward in message history
-			elseif (crankTick < -30) then
-				crankTick = 0
-				-- TODO: navigate back in message history
+			if inputMode == "script" then
+				Noble.transition(MessageLog, .5, Noble.TransitionType.CROSS_DISSOLVE)
 			end
 		end,
 		upButtonDown = function()
-			if inputMode == "choice" then
+			if inputMode == "script" then
+				Noble.transition(MessageLog, .5, Noble.TransitionType.CROSS_DISSOLVE)
+			elseif inputMode == "choice" then
 				choiceMenu:selectPrevious()
 				Sound.beep()
 			end
@@ -272,7 +263,7 @@ function Game:seekScript(__index)
 			if cur.move ~= nil then
 				for key, value in next, cur.move do
 					if chara[key] ~= nil then
-						local char = characters[key]
+						local char = chara[key]
 						if value.pos ~= nil then
 							char.pos = value.pos
 						end
