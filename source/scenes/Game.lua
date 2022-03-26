@@ -33,6 +33,7 @@ local chapter
 local chapterIndex
 local choice
 local choiceMenu
+local bgm
 
 function Game:init()
 	Game.super.init(self)
@@ -99,13 +100,13 @@ function Game:init()
 				Noble.transition(MessageLog, .5, Noble.TransitionType.CROSS_DISSOLVE)
 			elseif inputMode == "choice" then
 				choiceMenu:selectPrevious()
-				Sound.beep()
+				Sound.tick()
 			end
 		end,
 		downButtonDown = function()
 			if inputMode == "choice" then
 				choiceMenu:selectNext()
-				Sound.beep()
+				Sound.tick()
 			end
 		end,
 		AButtonDown = function()
@@ -114,6 +115,8 @@ function Game:init()
 			elseif inputMode == "choice" then
 				choiceMenu:click()
 				Sound.confirm()
+				choice = nil
+				choiceMenu = nil
 				inputMode = "script"
 				self:advanceScript()
 			end
@@ -146,7 +149,33 @@ function Game:update()
 	Game.super.update(self)
 
 	if choice ~= nil then
-		choiceMenu:draw(8, 8)
+		local rad, padding = 4, 4
+		local w = choiceMenu.width + choiceMenu.selectedOutlineThickness * 2
+		local h = #choiceMenu.itemNames * 22 + padding * 2 + choiceMenu.selectedOutlineThickness * 2
+		local x, y = (screenWidth - w) / 2
+		if txtQuote.text == "" then
+			y = math.max((screenHeight - h) / 2, 0)
+		else
+			y = math.max((screenHeight - 60 - h) / 2, 0)
+		end
+		if darkStyle then
+			Graphics.setColor(Graphics.kColorBlack)
+		else
+			Graphics.setColor(Graphics.kColorWhite)
+		end
+		Graphics.fillRoundRect(x, y, w, h, rad)
+		if darkStyle then
+			Graphics.setColor(Graphics.kColorWhite)
+		else
+			Graphics.setColor(Graphics.kColorBlack)
+		end
+		Graphics.drawRoundRect(x, y, w, h, rad)
+		if darkStyle then
+			Graphics.setColor(Graphics.kColorBlack)
+			Graphics.drawRoundRect(x - 1, y - 1, w + 2, h + 2, rad + 1)
+		end
+
+		choiceMenu:draw(x + padding, y + padding)
 	end
 end
 
@@ -171,6 +200,13 @@ function Game:cleanup()
 end
 
 function Game:nextChapter()
+	if bgm ~= nil then
+		if bgm:sub(-4) == '.mid' then
+			Sound.stopMIDI()
+		else
+			Sound.stop()
+		end
+	end
 	if scriptIndex == #script then
 		print("end of script")
 		-- Delete autosave after game ends?
@@ -204,6 +240,7 @@ end
 
 function Game:seekScript(__index)
 	local index = __index - 1
+	print("Seeking to index " .. index)
 
 	-- Don't seek if not going anywhere :P
 	if index <= 0 then
@@ -414,22 +451,27 @@ function Game:advanceScript()
 			txtTitle:remove()
 		end
 
+		-- Play/stop BGM
+		if cur.bgm ~= nil then
+			Game:setBgm(cur.bgm)
+		end
+
 		-- Show choice
 		if cur.choice ~= nil then
-			-- TODO: draw outline box
-			choiceCount = #cur.choice
-
 			choice = cur.choice
-			-- TODO: position menu sensibly
+
+			local menuColor
+			if darkStyle then
+				menuColor = Graphics.kColorWhite
+			else
+				menuColor = Graphics.kColorBlack
+			end
 			choiceMenu = Noble.Menu.new(
 				true, -- activate
 				Noble.Text.ALIGN_LEFT,
 				false, -- localized
-				Graphics.kColorBlack,
-				4, -- padding
-				12, -- horizontal padding
-				0, -- margin
-				font14 -- font
+				menuColor,
+				4 -- padding
 			)
 
 			for key, value in next, choice do
@@ -489,4 +531,22 @@ function Game:setMessage(text, name)
 	txtQuote:setText(text)
 	txtQuote:add()
 	messageBox:add()
+end
+
+function Game:setBgm(newBgm)
+	if newBgm then
+		bgm = newBgm
+		if newBgm:sub(-4) == '.mid' then
+			Sound.playMIDI(newBgm)
+		else
+			Sound.play(newBgm)
+		end
+	else
+		bgm = nil
+		if bgm:sub(-4) == '.mid' then
+			Sound.stopMIDI()
+		else
+			Sound.stop()
+		end
+	end
 end

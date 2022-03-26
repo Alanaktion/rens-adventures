@@ -1,4 +1,6 @@
 return {{
+	title = "Chapter 1: The Introduction",
+}, {
 	bg = "20%",
 	reveal = {
 		shi = {

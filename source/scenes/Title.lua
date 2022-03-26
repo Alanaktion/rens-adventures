@@ -97,7 +97,8 @@ end
 function Title:enter()
 	Title.super.enter(self)
 
-	-- TODO: use menuItemCount to determine position
+	Sound.playMIDI("bgm/bach.mid")
+
 	menuSequence = Sequence.new():from(240):to(menuY, .5, Ease.outQuad)
 	menuSequence:start()
 
@@ -119,7 +120,6 @@ end
 function Title:update()
 	Title.super.update(self)
 
-	-- TODO: use menuItemCount to determine position
 	menu:draw(8, menuSequence:get()-15 or 100-15)
 
 	if not renSequence:isDone() then
@@ -130,7 +130,6 @@ end
 function Title:exit()
 	Title.super.exit(self)
 
-	-- TODO: use menuItemCount to determine position
 	menuSequence = Sequence.new():from(menuY):to(240, 0.25, Ease.inSine)
 	menuSequence:start()
 
@@ -138,4 +137,6 @@ function Title:exit()
 		:from(screenWidth * 3 / 4)
 		:to(screenWidth * 5 / 4, .25, Ease.inSine)
 	renSequence:start()
+
+	Sound.stopMIDI()
 end

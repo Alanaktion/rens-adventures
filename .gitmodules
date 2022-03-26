@@ -4,3 +4,6 @@
 [submodule "AnimatedSprite"]
 	path = source/libraries/animated-sprite
 	url = https://github.com/Whitebrim/AnimatedSprite.git
+[submodule "lume"]
+	path = source/libraries/lume
+	url = https://github.com/rxi/lume.git

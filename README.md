@@ -24,6 +24,7 @@ Things that still need to be implemented:
 
 - Choice menu + example implementations
 - BGM (MIDI + WAV)
+- SE (Synth + WAV)
 - Character movement transitions
 - Animated character sprites
 
@@ -50,6 +51,7 @@ Story chapters run in sequence from a chapter "script" file, like `scripts/0-int
 - `hide`: A table of character keys to hide, for example `{"ren"}` will hide a `ren={...}` character that was previously revealed.
 - `bg`: Shows a background image from `assets/images/bg/` with the specified name, or removes the current background when `false`.
 - `cg`: Shows a CG image from `assets/images/cg/` with the specified name, or removes the current CG when `false`.
+- `bgm`: Plays a music file from `assets/audio/bgm/` with the specified name. MIDI sequences should end in `.mid` and have the extension included, while sampled audio should be ADPCM `.wav` files and should not have the extension included in the `bgm` value. Stops any currently-playing BGM when `false`. BGM will loop until stopped.
 - `title`: Large title text to show centered on the screen, typically to introduce a new chapter. Typically used by itself, but will be drawn above character/cg images and below message boxes and choices if present.
 - `titleInvert`: Draw title text in white instead of black
 - `check`: An optional function to determine if the message should be rendered. Return false to skip processing anything else in the message. Typically checks something in Noble.GameData set by previous choices.

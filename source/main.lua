@@ -41,16 +41,16 @@ function playdate.deviceWillLock()
 	SaveData.save()
 end
 
-local menu = playdate.getSystemMenu()
+local menu <const> = playdate.getSystemMenu()
 menu:addMenuItem("title screen", function()
-	-- TODO: maybe auto-save when returning to title? idk
 	SaveData.init() -- Reset game state since we're exiting the game
 	Noble.transition(Title, .5, Noble.TransitionType.CROSS_DISSOLVE)
 end)
 menu:addMenuItem("save", function()
-	-- TODO: only allow saving when in a game
-	-- Should probably add/remove this menu item when entering and exiting the game screen
-	Noble.transition(SaveGame, .5, Noble.TransitionType.DIP_TO_WHITE)
+	-- TODO: add/remove this menu item when entering and exiting the game screen
+	if Noble.currentSceneName() == "Game" then
+		Noble.transition(SaveGame, .5, Noble.TransitionType.DIP_TO_WHITE)
+	end
 end)
 menu:addMenuItem("load", function()
 	Noble.transition(LoadGame, .5, Noble.TransitionType.DIP_TO_WHITE)
