@@ -6,3 +6,7 @@ function Character:init(name)
 	self:setCenter(.5, 1)
 	self:setZIndex(20)
 end
+
+function Character:changeImage(name)
+	self:setImage('assets/images/chara/' .. name)
+end

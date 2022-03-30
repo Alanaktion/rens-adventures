@@ -216,8 +216,7 @@ function Game:nextChapter()
 		self:cleanup()
 		chapterIndex = 0
 		scriptIndex += 1
-		chapter = script[scriptIndex].sequence
-		SaveData.current.chapter = script[scriptIndex].name
+		Game:setChapter(script[scriptIndex].name)
 		self:advanceScript()
 	end
 end
@@ -231,7 +230,9 @@ function Game:setChapter(chapterName)
 		end
 	end
 	if scriptIndex ~= nil then
-		chapter = script[scriptIndex].sequence
+		local file = script[scriptIndex].file
+		scriptSequence = playdate.file.run("scripts/" .. file)
+		chapter = scriptSequence
 		SaveData.current.chapter = script[scriptIndex].name
 	else
 		print("Unknown script chapter " .. chapterName)
@@ -301,6 +302,9 @@ function Game:seekScript(__index)
 				for key, value in next, cur.move do
 					if chara[key] ~= nil then
 						local char = chara[key]
+						if value.image ~= nil then
+							char.image = value.image
+						end
 						if value.pos ~= nil then
 							char.pos = value.pos
 						end
@@ -344,7 +348,11 @@ function Game:seekScript(__index)
 			if value.center then
 				char:setCenter(value.center.x, value.center.y)
 			end
-			char:moveTo(value.pos.x * screenWidth, value.pos.y * screenHeight)
+			if value.pos then
+				char:moveTo(value.pos.x * screenWidth, value.pos.y * screenHeight)
+			else
+				char:moveTo(screenWidth / 2, screenHeight)
+			end
 			if value.flip then
 				char:setImageFlip(Graphics.kImageFlippedX)
 			end
@@ -392,7 +400,11 @@ function Game:advanceScript()
 				if value.center then
 					char:setCenter(value.center.x, value.center.y)
 				end
-				char:moveTo(value.pos.x * screenWidth, value.pos.y * screenHeight)
+				if value.pos then
+					char:moveTo(value.pos.x * screenWidth, value.pos.y * screenHeight)
+				else
+					char:moveTo(screenWidth / 2, screenHeight)
+				end
 				if value.flip then
 					char:setImageFlip(Graphics.kImageFlippedX)
 				end
@@ -407,6 +419,9 @@ function Game:advanceScript()
 				if characters[key] then
 					local char = characters[key]
 					-- TODO: implement eased movement
+					if value.image ~= nil then
+						char:changeImage(value.image)
+					end
 					if value.pos then
 						char:moveTo(value.pos.x * screenWidth, value.pos.y * screenHeight)
 					end

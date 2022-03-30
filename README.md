@@ -19,14 +19,18 @@ Things that work now:
 - Save states
 - Skip mode
 - Message log
+- BGM (MIDI + WAV)
+- Choice menu
 
 Things that still need to be implemented:
 
-- Choice menu + example implementations
-- BGM (MIDI + WAV)
 - SE (Synth + WAV)
 - Character movement transitions
 - Animated character sprites
+- Ability to jump to a specific chapter/position from the script, with checks
+- Typewriter effect on message display
+- Moving libraries out of source and importing files explicitly needed to keep pdx bundle smaller
+- CG gallery with unlocks
 
 ## Usage
 
@@ -40,7 +44,7 @@ Story chapters run in sequence from a chapter "script" file, like `scripts/0-int
 - `name`: A character name to show with the message
 - `reveal`: A table of new characters to reveal. Each character should have a named key, and the following items:
 	- `image`: The image file name for the character in the `assets/images/chara/` directory
-	- `pos`: The x/y coordinates to place the character at as a percentage of the screen dimensions. `{x=0, y=1}` will place the character at the bottom left of the screen, with the center of the image at the left.
+	- `pos`: The x/y coordinates to place the character at as a percentage of the screen dimensions. `{x=0, y=1}` will place the character at the bottom left of the screen, with the center of the image at the left. By default the character will be positioned at `{x=0.5, y=1}` if not specified.
 	- `flip`: This optional bool will flip the character image horizontally
 	- `center`: This optional table value will invoke `sprite:setCenter(x, y)` when revealing the character. It uses the same `{x=0, y=0}` syntax as `pos`. By default, characters use `{x=.5, y=1}`.
 - `move`: A table of characters to move. Characters should have the same keys as when they were added via `reveal`, and can include any of the following items:

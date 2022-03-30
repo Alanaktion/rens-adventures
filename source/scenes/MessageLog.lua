@@ -92,7 +92,6 @@ end
 
 function MessageLog:scroll(change)
 	textPosition -= change
-	print(#text, lineCount, textIndex, textPosition, change)
 	while textPosition < 0 - fontHeight and textIndex < #text - lineCount + 2 do
 		textIndex += 1
 		textPosition += lineHeight
@@ -107,14 +106,13 @@ function MessageLog:scroll(change)
 	if textPosition > 0 and textIndex == 1 then
 		textPosition = 0
 	end
-	print(#text, lineCount, textIndex, textPosition)
 	self:drawText()
 end
 
 function MessageLog:loadText()
 	text = {"Message Log", ""}
 
-	local chapter = self:getChapter(SaveData.current.chapter)
+	local chapter = scriptSequence
 	local endIndex = SaveData.current.chapterIndex
 	for index = 1, endIndex do
 		local cur = chapter[index]
@@ -127,14 +125,6 @@ function MessageLog:loadText()
 			else
 				table.insert(text, "_" .. cur.text .. "_")
 			end
-		end
-	end
-end
-
-function MessageLog:getChapter(chapterName)
-	for key, value in next, script do
-		if value.name == chapterName then
-			return value.sequence
 		end
 	end
 end
