@@ -13,16 +13,6 @@ local background
 local txtName
 local txtQuote
 local txtTitle
--- TODO: maybe draw these as rounded rects instead of images? could match name width, etc.
-local darkImages = {
-	message = Graphics.image.new("assets/images/message"),
-	messageWithName = Graphics.image.new("assets/images/message-with-name")
-}
-local lightImages = {
-	message = Graphics.image.new("assets/images/message-light"),
-	messageWithName = Graphics.image.new("assets/images/message-light-with-name")
-}
-local images
 local eventCg
 local messageBox
 local characters
@@ -43,8 +33,7 @@ function Game:init()
 
 	txtName = Text()
 	txtName:setFontSize(12)
-	txtName:setCenter(.5,0)
-	txtName:moveTo(35, screenHeight - 80)
+	txtName:moveTo(14, screenHeight - 80)
 	if darkStyle then
 		txtName:setInvert(true)
 	end
@@ -60,22 +49,14 @@ function Game:init()
 	txtTitle:setRect(6, screenHeight / 2 - 32, screenWidth - 12, 64)
 	txtTitle:setAlignment(kTextAlignment.center)
 
-	if darkStyle then
-		images = darkImages
-	else
-		images = lightImages
-	end
-
 	eventCg = NobleSprite()
 	eventCg:setCenter(0, 0)
 	eventCg:moveTo(0, 0)
 	eventCg:setZIndex(80)
 
-	messageBox = NobleSprite()
-	messageBox:setImage(images.message)
-	messageBox:setCenter(0, 1)
+	messageBox = MessageBox()
+	messageBox:setDark(darkStyle)
 	messageBox:moveTo(0, screenHeight)
-	messageBox:setZIndex(90)
 
 	inputMode = "script"
 	characters = {}
@@ -158,6 +139,7 @@ function Game:update()
 		else
 			y = math.max((screenHeight - 60 - h) / 2, 0)
 		end
+		Graphics.setStrokeLocation(Graphics.kStrokeInside)
 		if darkStyle then
 			Graphics.setColor(Graphics.kColorBlack)
 		else
@@ -536,11 +518,11 @@ function Game:setMessage(text, name)
 		return
 	end
 	if name then
-		messageBox:setImage(images.messageWithName)
+		messageBox:setName(name)
 		txtName:add()
 		txtName:setText(name)
 	else
-		messageBox:setImage(images.message)
+		messageBox:setName(false)
 		txtName:remove()
 	end
 	txtQuote:setText(text)

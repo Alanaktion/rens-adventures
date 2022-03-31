@@ -6,6 +6,7 @@ import 'utilities/SaveData'
 import 'utilities/Sound'
 
 import 'sprites/Text'
+import 'sprites/MessageBox'
 import 'sprites/Character'
 
 import 'script'
