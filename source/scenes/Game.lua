@@ -539,11 +539,14 @@ function Game:setBgm(newBgm)
 			Sound.play(newBgm)
 		end
 	else
-		bgm = nil
+		if bgm == nil then
+			return
+		end
 		if bgm:sub(-4) == '.mid' then
 			Sound.stopMIDI()
 		else
 			Sound.stop()
 		end
+		bgm = nil
 	end
 end
