@@ -8,5 +8,5 @@ function Character:init(name)
 end
 
 function Character:changeImage(name)
-	self:setImage('assets/images/chara/' .. name)
+	self:setImage(Graphics.image.new('assets/images/chara/' .. name))
 end

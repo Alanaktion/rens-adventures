@@ -181,7 +181,7 @@ function Game:cleanup()
 	messageBox:remove()
 end
 
-function Game:nextChapter()
+function Game:nextChapter(jumpToName)
 	if bgm ~= nil then
 		if bgm:sub(-4) == '.mid' then
 			Sound.stopMIDI()
@@ -189,7 +189,10 @@ function Game:nextChapter()
 			Sound.stop()
 		end
 	end
-	if scriptIndex == #script then
+	if jumpToName ~= nil then
+		Game:setChapter(jumpToName)
+		self:advanceScript()
+	elseif scriptIndex == #script then
 		print("end of script")
 		-- Delete autosave after game ends?
 		-- SaveData.delete()
@@ -319,19 +322,20 @@ function Game:seekScript(__index)
 
 	-- Render resulting frame
 	if bg ~= nil then
-		Game:setBg(bg)
+		self:setBg(bg)
 	end
 	if cg ~= nil then
-		Game:setCg(cg)
+		self:setCg(cg)
 	end
 	if #chara then
 		for key, value in next, chara do
-			local char = Character(value.image)
+			local char = Character(Game.mapValue("chara", value.image))
 			if value.center then
 				char:setCenter(value.center.x, value.center.y)
 			end
 			if value.pos then
-				char:moveTo(value.pos.x * screenWidth, value.pos.y * screenHeight)
+				local pos = Game.mapValue("pos", value.pos)
+				char:moveTo(pos.x * screenWidth, pos.y * screenHeight)
 			else
 				char:moveTo(screenWidth / 2, screenHeight)
 			end
@@ -342,7 +346,7 @@ function Game:seekScript(__index)
 			char:add()
 		end
 	end
-	Game:setMessage(text, name)
+	self:setMessage(text, name)
 	if title ~= nil then
 		txtTitle:setText(title)
 		txtTitle:setInvert(titleInvert == true)
@@ -358,19 +362,25 @@ function Game:advanceScript()
 		-- Conditionally skip current sequence item
 		if cur.check ~= nil then
 			if cur.check() == false then
-				Game:advanceScript()
+				self:advanceScript()
 				return
 			end
 		end
 
+		-- Jump to a new chapter/position
+		if cur.jump ~= nil then
+			self:setChapter(cur.jump)
+			return
+		end
+
 		-- Set background
 		if cur.bg ~= nil then
-			Game:setBg(cur.bg)
+			self:setBg(cur.bg)
 		end
 
 		-- Show CG
 		if cur.cg ~= nil then
-			Game:setCg(cur.cg)
+			self:setCg(cur.cg)
 		end
 
 		-- TODO: support altering z-index of individual characters and the message box
@@ -378,12 +388,13 @@ function Game:advanceScript()
 		-- Reveal new characters
 		if cur.reveal ~= nil then
 			for key, value in next, cur.reveal do
-				local char = Character(value.image)
+				local char = Character(Game.mapValue("chara", value.image))
 				if value.center then
 					char:setCenter(value.center.x, value.center.y)
 				end
 				if value.pos then
-					char:moveTo(value.pos.x * screenWidth, value.pos.y * screenHeight)
+					local pos = Game.mapValue("pos", value.pos)
+					char:moveTo(pos.x * screenWidth, pos.y * screenHeight)
 				else
 					char:moveTo(screenWidth / 2, screenHeight)
 				end
@@ -402,10 +413,11 @@ function Game:advanceScript()
 					local char = characters[key]
 					-- TODO: implement eased movement
 					if value.image ~= nil then
-						char:changeImage(value.image)
+						char:changeImage(Game.mapValue("chara", value.image))
 					end
 					if value.pos then
-						char:moveTo(value.pos.x * screenWidth, value.pos.y * screenHeight)
+						local pos = Game.mapValue("pos", value.pos)
+						char:moveTo(pos.x * screenWidth, pos.y * screenHeight)
 					end
 					if value.flip ~= nil then
 						if value.flip then
@@ -434,9 +446,9 @@ function Game:advanceScript()
 
 		-- Show message text
 		if cur.text ~= nil then
-			Game:setMessage(cur.text, cur.name)
+			self:setMessage(cur.text, cur.name)
 		else
-			Game:setMessage()
+			self:setMessage()
 		end
 
 		-- Show title text
@@ -450,7 +462,7 @@ function Game:advanceScript()
 
 		-- Play/stop BGM
 		if cur.bgm ~= nil then
-			Game:setBgm(cur.bgm)
+			self:setBgm(Game.mapValue("bgm", cur.bgm))
 		end
 
 		-- Show choice
@@ -492,7 +504,18 @@ function Game:advanceScript()
 	end
 end
 
-function Game:setBg(bg)
+function Game.mapValue(type, default)
+	if default == nil then
+		return nil
+	end
+	if scriptMap[type] and scriptMap[type][default] ~= nil then
+		return scriptMap[type][default]
+	end
+	return default
+end
+
+function Game:setBg(__bg)
+	local bg = Game.mapValue("bg", __bg)
 	if bg then
 		background = Graphics.image.new("assets/images/bg/" .. bg)
 	else
@@ -500,7 +523,8 @@ function Game:setBg(bg)
 	end
 end
 
-function Game:setCg(cg)
+function Game:setCg(__cg)
+	local cg = Game.mapValue("cg", __cg)
 	if cg then
 		local img = Graphics.image.new("assets/images/cg/" .. cg)
 		eventCg:setImage(img)
@@ -510,7 +534,8 @@ function Game:setCg(cg)
 	end
 end
 
-function Game:setMessage(text, name)
+function Game:setMessage(text, __name)
+	local name = Game.mapValue("name", __name)
 	if text == nil then
 		txtName:remove()
 		txtQuote:remove()
@@ -530,7 +555,8 @@ function Game:setMessage(text, name)
 	messageBox:add()
 end
 
-function Game:setBgm(newBgm)
+function Game:setBgm(__newBgm)
+	local newBgm = Game.mapValue("bgm", __newBgm)
 	if newBgm then
 		bgm = newBgm
 		if newBgm:sub(-4) == '.mid' then

@@ -21,13 +21,14 @@ Things that work now:
 - Message log
 - BGM (MIDI + WAV)
 - Choice menu
+- Jumping to a specific chapter from the script
 
 Things that still need to be implemented:
 
 - SE (Synth + WAV)
+- Dynamic endings
 - Character movement transitions
-- Animated character sprites
-- Ability to jump to a specific chapter/position from the script, with checks
+- Jumping to a specific position within a chapter from the script
 - Typewriter effect on message display
 - Moving libraries out of source and importing files explicitly needed to keep pdx bundle smaller
 - CG gallery with unlocks
@@ -38,7 +39,7 @@ This is a pretty straightforward template to build off of, but there are a few i
 
 ### Scripts
 
-Story chapters run in sequence from a chapter "script" file, like `scripts/0-intro.lua`. Each chapter file returns a numerically-indexed table, which contains tables with messages, character reveals, etc. Each sub-table can include these items:
+Story chapters run in sequence from the table in the `script.lua` file, like `scripts/0-intro.lua`. Each chapter file returns a numerically-indexed table, which contains tables with messages, character reveals, etc. Each sub-table can include these items:
 
 - `text`: A message to show in a text box
 - `name`: A character name to show with the message
@@ -63,5 +64,31 @@ Story chapters run in sequence from a chapter "script" file, like `scripts/0-int
 	- `text`: The text to display to the player
 	- `callback`: The function called when the player selects that option
 	- `default`: An optional key that, if `true`, will be cause that option to be selected if the player presses the B button
+- `jump`: A chapter name to jump to in the script, often used with `check` to conditionally move to a different point in the script.
 
 New chapters should be added to the table in `script.lua` to enable them in the game. The game will progress through the chapters sequentially. Chapters have names for better compatibility with save states during development, primarily to avoid a scenario where a save state includes a numeric index but that chapter was moved to a different index.
+
+### Script Map
+
+During development, it is often helpful to use shorthands and re-use assets. There is a mapping table in `script.lua` that allows you to map values in your script files to a new value at runtime.
+
+This is particularly useful to shorten names and use a single asset file for multiple character images in the script. For example you may want the script to switch between different poses/expressions with `ren_normal` and `ren_excited`, but you only have one `ren.png` since the art is still WIP. You can map `ren_normal` and `ren_excited` to `ren` to ensure a character image is displayed, and remove the mappings once you have the specific images. You may also just prefer having a different (often shorter) name in the script for something, mapped to a longer or more descriptive file name.
+
+The `scriptMap` table can contain any of these keys:
+
+- `chara`: Character images (`ren = "ren_normal"`)
+- `pos`: Character positions (`twoleft = {x=0.3, y=1}`)
+- `bgm`: Background music mapping (`menu = "theme_music.mid"`)
+- `bg`: BG images
+- `cg`: CG images
+- `name`: Character names shown with messages (`ha = "Hanako"`)
+
+Each key should contain a table mapping the strings found in the script to the new desired values.
+
+### Script functions
+
+The `check` and `choice` keys in scripts require functions to control the flow of the game. While you can define these functions directly in the table, that may lead to a lot of repetition or unwanted complexity in your script.
+
+For example, you may want to conditionally show a series of messages with `check` based on a game data value set by a previous `choice`. The function to do that is fairly simple, something like `check = function() return SaveData.current.scriptData.choice1 == true end`, but writing that over and over leads to a messy script and can be error-prone.
+
+In cases where you need a long/complex or frequently repeated function, it may be best to define it elsewhere in your game code rather than directly within the script table. If the function is only used by one chapter of your script, you could define it before the table in that chapter's script file and reference it by name in your script. If it's used in several chapters, it's best to add it to your `script.lua` file, or in a new lua file that you `include` in your `script.lua`.

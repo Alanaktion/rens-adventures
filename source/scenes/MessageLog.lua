@@ -120,7 +120,7 @@ function MessageLog:loadText()
 			-- Skip message
 		elseif cur.text ~= nil then
 			if cur.name then
-				table.insert(text, "*" .. cur.name .. "*")
+				table.insert(text, "*" .. Game.mapValue("name", cur.name) .. "*")
 				table.insert(text, cur.text)
 			else
 				table.insert(text, "_" .. cur.text .. "_")

@@ -14,10 +14,10 @@ return {{
 		}
 	}
 }, {
-	name = "Misha",
+	name = "mi",
 	text = "You like chess, don't you? Yeah, you do, definitely!",
 }, {
-	name = "Hanako",
+	name = "ha",
 	text = "Uhm..."
 }, {
 	check = function()
@@ -25,7 +25,7 @@ return {{
 	end,
 	text = "This message SHOULD NEVER SHOW!"
 }, {
-	name = "Misha",
+	name = "mi",
 	text = "Wahaha~!",
 	move = {
 		hana = {
