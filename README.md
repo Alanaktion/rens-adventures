@@ -64,7 +64,7 @@ Story chapters run in sequence from the table in the `script.lua` file, like `sc
 	- `text`: The text to display to the player
 	- `callback`: The function called when the player selects that option
 	- `default`: An optional key that, if `true`, will be cause that option to be selected if the player presses the B button
-- `jump`: A chapter name to jump to in the script, often used with `check` to conditionally move to a different point in the script.
+- `jump`: A chapter filename to jump to in the script, often used with `check` to conditionally move to a different point in the script.
 
 New chapters should be added to the table in `script.lua` to enable them in the game. The game will progress through the chapters sequentially. Chapters have names for better compatibility with save states during development, primarily to avoid a scenario where a save state includes a numeric index but that chapter was moved to a different index.
 

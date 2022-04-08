@@ -63,7 +63,7 @@ function Game:init()
 	choice = nil
 	choiceMenu = nil
 
-	self:setChapter(SaveData.current.chapter)
+	self:setChapter(SaveData.current.chapterFile)
 	if SaveData.current.chapterIndex > 0 then
 		self:seekScript(SaveData.current.chapterIndex)
 	end
@@ -168,6 +168,11 @@ function Game:drawBackground()
 	end
 end
 
+function Game:finish()
+	Game.super.finish(self)
+	self:cleanup()
+end
+
 function Game:cleanup()
 	background = nil
 	for key, value in next, characters do
@@ -190,7 +195,7 @@ function Game:nextChapter(jumpToName)
 		end
 	end
 	if jumpToName ~= nil then
-		Game:setChapter(jumpToName)
+		self:setChapter(jumpToName)
 		self:advanceScript()
 	elseif scriptIndex == #script then
 		print("end of script")
@@ -201,26 +206,26 @@ function Game:nextChapter(jumpToName)
 		self:cleanup()
 		chapterIndex = 0
 		scriptIndex += 1
-		Game:setChapter(script[scriptIndex].name)
+		self:setChapter(script[scriptIndex].file)
 		self:advanceScript()
 	end
 end
 
-function Game:setChapter(chapterName)
+function Game:setChapter(chapterFilename)
 	chapterIndex = 0
 	scriptIndex = nil
 	for key, value in next, script do
-		if value.name == chapterName then
+		if value.file == chapterFilename then
 			scriptIndex = key
 		end
 	end
 	if scriptIndex ~= nil then
-		local file = script[scriptIndex].file
-		scriptSequence = playdate.file.run("scripts/" .. file)
+		scriptSequence = playdate.file.run("scripts/" .. chapterFilename)
 		chapter = scriptSequence
-		SaveData.current.chapter = script[scriptIndex].name
+		SaveData.current.chapterName = script[scriptIndex].name
+		SaveData.current.chapterFile = script[scriptIndex].file
 	else
-		print("Unknown script chapter " .. chapterName)
+		print("Unknown script chapter " .. chapterFilename)
 	end
 end
 

@@ -1,10 +1,10 @@
 script = {
 	{
-		name = "intro",
+		name = "Intro",
 		file = "0-intro",
 	},
 	{
-		name = "ren",
+		name = "Ren",
 		file = "1-ren",
 	},
 }

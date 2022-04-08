@@ -3,7 +3,8 @@ SaveData = {}
 
 -- The default keys and values for a save state
 SaveData.schema = {
-	chapter = "",
+	chapterName = "",
+	chapterFile = "",
 	chapterIndex = 0,
 	scriptData = {},
 }
@@ -39,7 +40,7 @@ end
 function SaveData.save(__slot)
 	local slot = __slot or "auto"
 	SaveData.current.timestamp = playdate.getGMTTime()
-	if SaveData.current.chapter ~= nil and SaveData.current.chapter ~= "" then
+	if SaveData.current.chapterFile ~= nil and SaveData.current.chapterFile ~= "" then
 		playdate.datastore.write(SaveData.current, "SaveData-" .. slot, true)
 		return true
 	end

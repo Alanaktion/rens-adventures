@@ -2,11 +2,10 @@
 -- The "Utilities" table is already defined in "noble/Utilities.lua."
 -- Try to avoid name collisions.
 
-function Utilities.getZero()
-	return 0
-end
-
 function Utilities.formatDateTime(time)
+	if time == nil then
+		return nil
+	end
 	local str = ""
 	local months = {
 		"January",

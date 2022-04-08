@@ -32,7 +32,7 @@ function SaveGame:init()
 		if SaveData.exists(i) then
 			local data = SaveData.getAll(i)
 			slotData[i] = {
-				chapter = data.chapter,
+				chapter = data.chapterName,
 				time = Utilities.formatDateTime(data.time)
 			}
 		end

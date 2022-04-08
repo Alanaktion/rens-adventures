@@ -39,7 +39,8 @@ function Title:init()
 		"menuNewGame",
 		function()
 			SaveData.init()
-			SaveData.current.chapter = script[1].name
+			SaveData.current.chapterName = script[1].name
+			SaveData.current.chapterFile = script[1].file
 			Noble.transition(Game, 1, Noble.TransitionType.DIP_TO_WHITE)
 		end
 	)
