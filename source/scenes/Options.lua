@@ -6,7 +6,6 @@ Options.backgroundColor = Graphics.kColorBlack
 local messageStyleValues = {"Dark", "Light"}
 
 local background
-local logo
 local menu
 local sequence
 
@@ -14,7 +13,6 @@ function Options:init()
 	Options.super.init(self)
 
 	background = Graphics.image.new("assets/images/bg/grad2")
-	logo = Graphics.image.new("libraries/noble/assets/images/NobleRobotLogo")
 
 	menu = Noble.Menu.new(false, Noble.Text.ALIGN_LEFT, false, Graphics.kColorBlack, 4,6,0)
 
@@ -141,11 +139,6 @@ function Options:update()
 	Graphics.setDitherPattern(0.2, Graphics.image.kDitherTypeScreen)
 	Graphics.fillRoundRect(15, (sequence:get()*0.75)+3, 185, 145, 15)
 	menu:draw(30, sequence:get()-15 or 100-15)
-
-	Graphics.setColor(Graphics.kColorBlack)
-	Graphics.fillRoundRect(260, -20, 130, 65, 15)
-	logo:setInverted(false)
-	logo:draw(275, 8)
 end
 
 function Options:exit()

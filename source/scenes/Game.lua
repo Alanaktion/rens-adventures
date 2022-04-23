@@ -195,6 +195,7 @@ function Game:nextChapter(jumpToName)
 		end
 	end
 	if jumpToName ~= nil then
+		self:cleanup()
 		self:setChapter(jumpToName)
 		self:advanceScript()
 	elseif scriptIndex == #script then
@@ -378,6 +379,12 @@ function Game:advanceScript()
 			return
 		end
 
+		-- End the game
+		if cur.ending then
+			Noble.transition(Ending, 2, Noble.TransitionType.DIP_TO_BLACK)
+			return
+		end
+
 		-- Set background
 		if cur.bg ~= nil then
 			self:setBg(cur.bg)
@@ -492,7 +499,12 @@ function Game:advanceScript()
 				choiceMenu:addItem(
 					value.text,
 					function()
-						value.callback()
+						if value.callback ~= nil then
+							value.callback()
+						end
+						if value.jump ~= nil then
+							self:setChapter(value.jump)
+						end
 					end
 				)
 			end
